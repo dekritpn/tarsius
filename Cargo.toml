@@ -1,0 +1,8 @@
+   [workspace]
+   members = [
+       "tarsius-core",
+       "tarsius-storage",
+       "tarsius-tauri",
+   ]
+   resolver = "2"
+

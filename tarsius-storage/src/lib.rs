@@ -1,20 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use thiserror::Error;
 use tarsius_core::*;
 use serde_json;
-
-#[derive(Error, Debug)]
-pub enum StorageError {
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
-    #[error("JSON error: {0}")]
-    Json(#[from] serde_json::Error),
-    #[error("Entity not found: {0}")]
-    NotFound(String),
-}
-
-pub type Result<T> = std::result::Result<T, StorageError>;
 
 pub trait ScratchRepository {
     fn save(&self, scratch: &Scratch) -> Result<()>;
@@ -36,6 +23,8 @@ pub trait TemplateRepository {
     fn list(&self) -> Result<Vec<Template>>;
     fn delete(&self, id: &str) -> Result<()>;
 }
+
+use std::sync::Arc;
 
 pub struct Workspace {
     base_path: PathBuf,
@@ -61,19 +50,19 @@ impl Workspace {
     }
 
     pub fn ensure_dirs(&self) -> Result<()> {
-        fs::create_dir_all(self.scratches_dir())?;
-        fs::create_dir_all(self.projects_dir())?;
-        fs::create_dir_all(self.templates_dir())?;
+        fs::create_dir_all(self.scratches_dir()).map_err(|e| CoreError::Storage(e.to_string()))?;
+        fs::create_dir_all(self.projects_dir()).map_err(|e| CoreError::Storage(e.to_string()))?;
+        fs::create_dir_all(self.templates_dir()).map_err(|e| CoreError::Storage(e.to_string()))?;
         Ok(())
     }
 }
 
-pub struct FilesystemScratchRepository<'a> {
-    workspace: &'a Workspace,
+pub struct FilesystemScratchRepository {
+    workspace: Arc<Workspace>,
 }
 
-impl<'a> FilesystemScratchRepository<'a> {
-    pub fn new(workspace: &'a Workspace) -> Self {
+impl FilesystemScratchRepository {
+    pub fn new(workspace: Arc<Workspace>) -> Self {
         Self { workspace }
     }
 
@@ -82,10 +71,10 @@ impl<'a> FilesystemScratchRepository<'a> {
     }
 }
 
-impl<'a> ScratchRepository for FilesystemScratchRepository<'a> {
+impl tarsius_core::ScratchRepository for FilesystemScratchRepository {
     fn save(&self, scratch: &Scratch) -> Result<()> {
         let path = self.scratch_path(&scratch.id);
-        let json = serde_json::to_string_pretty(scratch)?;
+        let json = serde_json::to_string_pretty(scratch).map_err(|e| CoreError::Storage(e.to_string()))?;
         write_atomic(&path, json)?;
         Ok(())
     }
@@ -93,21 +82,21 @@ impl<'a> ScratchRepository for FilesystemScratchRepository<'a> {
     fn load(&self, id: &str) -> Result<Scratch> {
         let path = self.scratch_path(id);
         if !path.exists() {
-            return Err(StorageError::NotFound(format!("Scratch {}", id)));
+            return Err(CoreError::NotFound(format!("Scratch {}", id)));
         }
-        let content = fs::read_to_string(path)?;
-        let scratch: Scratch = serde_json::from_str(&content)?;
+        let content = fs::read_to_string(path).map_err(|e| CoreError::Storage(e.to_string()))?;
+        let scratch: Scratch = serde_json::from_str(&content).map_err(|e| CoreError::Storage(e.to_string()))?;
         Ok(scratch)
     }
 
     fn list(&self) -> Result<Vec<Scratch>> {
         let mut scratches = Vec::new();
-        for entry in fs::read_dir(self.workspace.scratches_dir())? {
-            let entry = entry?;
+        for entry in fs::read_dir(self.workspace.scratches_dir()).map_err(|e| CoreError::Storage(e.to_string()))? {
+            let entry = entry.map_err(|e| CoreError::Storage(e.to_string()))?;
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                let content = fs::read_to_string(&path)?;
-                let scratch: Scratch = serde_json::from_str(&content)?;
+                let content = fs::read_to_string(&path).map_err(|e| CoreError::Storage(e.to_string()))?;
+                let scratch: Scratch = serde_json::from_str(&content).map_err(|e| CoreError::Storage(e.to_string()))?;
                 scratches.push(scratch);
             }
         }
@@ -117,18 +106,18 @@ impl<'a> ScratchRepository for FilesystemScratchRepository<'a> {
     fn delete(&self, id: &str) -> Result<()> {
         let path = self.scratch_path(id);
         if path.exists() {
-            fs::remove_file(path)?;
+            fs::remove_file(path).map_err(|e| CoreError::Storage(e.to_string()))?;
         }
         Ok(())
     }
 }
 
-pub struct FilesystemProjectRepository<'a> {
-    workspace: &'a Workspace,
+pub struct FilesystemProjectRepository {
+    workspace: Arc<Workspace>,
 }
 
-impl<'a> FilesystemProjectRepository<'a> {
-    pub fn new(workspace: &'a Workspace) -> Self {
+impl FilesystemProjectRepository {
+    pub fn new(workspace: Arc<Workspace>) -> Self {
         Self { workspace }
     }
 
@@ -141,12 +130,12 @@ impl<'a> FilesystemProjectRepository<'a> {
     }
 }
 
-impl<'a> ProjectRepository for FilesystemProjectRepository<'a> {
+impl tarsius_core::ProjectRepository for FilesystemProjectRepository {
     fn save(&self, project: &Project) -> Result<()> {
         let dir = self.project_dir(&project.id);
-        fs::create_dir_all(&dir)?;
+        fs::create_dir_all(&dir).map_err(|e| CoreError::Storage(e.to_string()))?;
         let path = self.project_path(&project.id);
-        let json = serde_json::to_string_pretty(project)?;
+        let json = serde_json::to_string_pretty(project).map_err(|e| CoreError::Storage(e.to_string()))?;
         write_atomic(&path, json)?;
         Ok(())
     }
@@ -154,18 +143,18 @@ impl<'a> ProjectRepository for FilesystemProjectRepository<'a> {
     fn load(&self, id: &str) -> Result<Project> {
         let path = self.project_path(id);
         if !path.exists() {
-            return Err(StorageError::NotFound(format!("Project {}", id)));
+            return Err(CoreError::NotFound(format!("Project {}", id)));
         }
-        let content = fs::read_to_string(path)?;
-        let project: Project = serde_json::from_str(&content)?;
+        let content = fs::read_to_string(path).map_err(|e| CoreError::Storage(e.to_string()))?;
+        let project: Project = serde_json::from_str(&content).map_err(|e| CoreError::Storage(e.to_string()))?;
         Ok(project)
     }
 
     fn list(&self) -> Result<Vec<Project>> {
         let mut projects = Vec::new();
-        for entry in fs::read_dir(self.workspace.projects_dir())? {
-            let entry = entry?;
-            if entry.file_type()?.is_dir() {
+        for entry in fs::read_dir(self.workspace.projects_dir()).map_err(|e| CoreError::Storage(e.to_string()))? {
+            let entry = entry.map_err(|e| CoreError::Storage(e.to_string()))?;
+            if entry.file_type().map_err(|e| CoreError::Storage(e.to_string()))?.is_dir() {
                 let dir_name = entry.file_name().to_string_lossy().to_string();
                 if let Ok(project) = self.load(&dir_name) {
                     projects.push(project);
@@ -178,18 +167,18 @@ impl<'a> ProjectRepository for FilesystemProjectRepository<'a> {
     fn delete(&self, id: &str) -> Result<()> {
         let dir = self.project_dir(id);
         if dir.exists() {
-            fs::remove_dir_all(dir)?;
+            fs::remove_dir_all(dir).map_err(|e| CoreError::Storage(e.to_string()))?;
         }
         Ok(())
     }
 }
 
-pub struct FilesystemTemplateRepository<'a> {
-    workspace: &'a Workspace,
+pub struct FilesystemTemplateRepository {
+    workspace: Arc<Workspace>,
 }
 
-impl<'a> FilesystemTemplateRepository<'a> {
-    pub fn new(workspace: &'a Workspace) -> Self {
+impl FilesystemTemplateRepository {
+    pub fn new(workspace: Arc<Workspace>) -> Self {
         Self { workspace }
     }
 
@@ -198,10 +187,10 @@ impl<'a> FilesystemTemplateRepository<'a> {
     }
 }
 
-impl<'a> TemplateRepository for FilesystemTemplateRepository<'a> {
+impl tarsius_core::TemplateRepository for FilesystemTemplateRepository {
     fn save(&self, template: &Template) -> Result<()> {
         let path = self.template_path(&template.id);
-        let json = serde_json::to_string_pretty(template)?;
+        let json = serde_json::to_string_pretty(template).map_err(|e| CoreError::Storage(e.to_string()))?;
         write_atomic(&path, json)?;
         Ok(())
     }
@@ -209,21 +198,21 @@ impl<'a> TemplateRepository for FilesystemTemplateRepository<'a> {
     fn load(&self, id: &str) -> Result<Template> {
         let path = self.template_path(id);
         if !path.exists() {
-            return Err(StorageError::NotFound(format!("Template {}", id)));
+            return Err(CoreError::NotFound(format!("Template {}", id)));
         }
-        let content = fs::read_to_string(path)?;
-        let template: Template = serde_json::from_str(&content)?;
+        let content = fs::read_to_string(path).map_err(|e| CoreError::Storage(e.to_string()))?;
+        let template: Template = serde_json::from_str(&content).map_err(|e| CoreError::Storage(e.to_string()))?;
         Ok(template)
     }
 
     fn list(&self) -> Result<Vec<Template>> {
         let mut templates = Vec::new();
-        for entry in fs::read_dir(self.workspace.templates_dir())? {
-            let entry = entry?;
+        for entry in fs::read_dir(self.workspace.templates_dir()).map_err(|e| CoreError::Storage(e.to_string()))? {
+            let entry = entry.map_err(|e| CoreError::Storage(e.to_string()))?;
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                let content = fs::read_to_string(&path)?;
-                let template: Template = serde_json::from_str(&content)?;
+                let content = fs::read_to_string(&path).map_err(|e| CoreError::Storage(e.to_string()))?;
+                let template: Template = serde_json::from_str(&content).map_err(|e| CoreError::Storage(e.to_string()))?;
                 templates.push(template);
             }
         }
@@ -233,7 +222,7 @@ impl<'a> TemplateRepository for FilesystemTemplateRepository<'a> {
     fn delete(&self, id: &str) -> Result<()> {
         let path = self.template_path(id);
         if path.exists() {
-            fs::remove_file(path)?;
+            fs::remove_file(path).map_err(|e| CoreError::Storage(e.to_string()))?;
         }
         Ok(())
     }
@@ -242,7 +231,7 @@ impl<'a> TemplateRepository for FilesystemTemplateRepository<'a> {
 fn write_atomic<P: AsRef<Path>>(path: P, content: String) -> Result<()> {
     let path = path.as_ref();
     let temp_path = path.with_extension("tmp");
-    fs::write(&temp_path, content)?;
-    fs::rename(temp_path, path)?;
+    fs::write(&temp_path, content).map_err(|e| CoreError::Storage(e.to_string()))?;
+    fs::rename(temp_path, path).map_err(|e| CoreError::Storage(e.to_string()))?;
     Ok(())
 }

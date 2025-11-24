@@ -17,18 +17,18 @@
 
 ## **Phase 1 — Core Domain Models**
 
-* [ ] Implement data models in `tarsius-core`:
+* [x] Implement data models in `tarsius-core`:
 
-  * [ ] `Scratch`
-  * [ ] `Project`
-  * [ ] `OutlineNode`
-  * [ ] `ScratchLink`
-  * [ ] `Template`
-  * [ ] `ProjectSettings`
-* [ ] Add `serde` serialization for all models
-* [ ] Implement initial `ScratchManager` and `ProjectManager`
-* [ ] Define DTOs for frontend exposure
-* [ ] Deliverable: **Core logic compiles with complete model definitions**
+  * [x] `Scratch`
+  * [x] `Project`
+  * [x] `OutlineNode`
+  * [x] `ScratchLink`
+  * [x] `Template`
+  * [x] `ProjectSettings`
+* [x] Add `serde` serialization for all models
+* [x] Implement initial `ScratchManager` and `ProjectManager`
+* [x] Define DTOs for frontend exposure
+* [x] Deliverable: **Core logic compiles with complete model definitions**
 
 ---
 

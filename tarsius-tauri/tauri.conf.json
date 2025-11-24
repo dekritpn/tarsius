@@ -1,9 +1,9 @@
 {
   "build": {
-    "beforeBuildCommand": "",
-    "beforeDevCommand": "",
-    "devPath": ".",
-    "distDir": ".",
+    "beforeBuildCommand": "cd frontend && npm run build",
+    "beforeDevCommand": "cd frontend && npm run dev",
+    "devPath": "http://localhost:5173",
+    "distDir": "frontend/dist",
     "withGlobalTauri": true
   },
   "package": {

@@ -34,18 +34,18 @@
 
 ## **Phase 2 — Storage Layer**
 
-* [ ] Implement filesystem-based repositories:
+* [x] Implement filesystem-based repositories:
 
-  * [ ] `ScratchRepository`
-  * [ ] `ProjectRepository`
-  * [ ] `TemplateRepository`
-* [ ] Use atomic file writes for safety
-* [ ] Implement workspace directory structure:
+  * [x] `ScratchRepository`
+  * [x] `ProjectRepository`
+  * [x] `TemplateRepository`
+* [x] Use atomic file writes for safety
+* [x] Implement workspace directory structure:
 
-  * [ ] `/scratches/`
-  * [ ] `/projects/<project_id>/`
-* [ ] Add load/save functions for Scratch and Project
-* [ ] Deliverable: **Scratches and Projects persist correctly on disk**
+  * [x] `/scratches/`
+  * [x] `/projects/<project_id>/`
+* [x] Add load/save functions for Scratch and Project
+* [x] Deliverable: **Scratches and Projects persist correctly on disk**
 
 ---
 

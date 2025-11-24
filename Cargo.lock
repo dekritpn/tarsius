@@ -2776,6 +2776,12 @@ dependencies = [
 [[package]]
 name = "tarsius-storage"
 version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "tarsius-core",
+ "thiserror",
+ "uuid",
+]
 
 [[package]]
 name = "tarsius-tauri"

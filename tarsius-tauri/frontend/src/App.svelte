@@ -4,12 +4,23 @@
 
   let currentView = 'scratches';
 
+  console.log('App.svelte script loaded');
+
   function switchView(view) {
+    console.log('Switching view to:', view);
     currentView = view;
   }
+
+  // Debug: Show that component mounted
+  console.log('App.svelte component created');
 </script>
 
 <main>
+  <!-- Debug: Always visible header -->
+  <div style="background: #007acc; color: white; padding: 10px; font-weight: bold;">
+    🐢 Tarsius App Loaded Successfully! Current view: {currentView}
+  </div>
+
   <aside>
     <nav>
       <button on:click={() => switchView('scratches')}>Scratches</button>

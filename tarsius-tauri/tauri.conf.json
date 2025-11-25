@@ -1,6 +1,6 @@
 {
   "build": {
-    "devPath": "http://localhost:37963",
+    "devPath": "http://localhost:34315",
     "distDir": "/home/dq/Dev/tarsius/tarsius-tauri/frontend/public"
   },
   "package": {

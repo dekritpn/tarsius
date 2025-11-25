@@ -33,14 +33,15 @@ export default {
   input: 'src/main.js',
   output: {
     sourcemap: true,
-    format: 'es',
-    file: 'public/build/bundle.js',
-    inlineDynamicImports: true
+    format: 'iife',
+    name: 'app',
+    file: 'public/build/bundle.js'
   },
   plugins: [
     svelte({
+      emitCss: false,
       compilerOptions: {
-        dev: !production
+        dev: true
       }
     }),
     css({ output: 'bundle.css' }),

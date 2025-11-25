@@ -20,7 +20,53 @@
     </style>
   </head>
   <body>
+    <!-- Debug: Show if HTML loads -->
+    <div style="position: fixed; top: 0; left: 0; background: #4CAF50; color: white; padding: 5px; font-family: Arial; z-index: 1000;">
+      HTML Loaded ✓
+    </div>
+
     <div id="app"></div>
+
+    <!-- Debug: Show if JavaScript executes -->
+    <script>
+      console.log('🔍 JavaScript is executing...');
+      document.body.style.background = '#f0f8ff';
+
+      // Add visible indicator
+      const jsIndicator = document.createElement('div');
+      jsIndicator.style.cssText = 'position: fixed; top: 25px; left: 0; background: #2196F3; color: white; padding: 5px; font-family: Arial; z-index: 1000;';
+      jsIndicator.textContent = 'JS Executed ✓';
+      document.body.appendChild(jsIndicator);
+
+      // Check if app element exists
+      setTimeout(() => {
+        const appElement = document.getElementById('app');
+        console.log('App element exists:', !!appElement);
+        if (appElement) {
+          console.log('App element content:', appElement.innerHTML);
+        }
+      }, 100);
+    </script>
+
     <script src="/build/bundle.js"></script>
+
+    <!-- Debug: Check if Svelte mounted -->
+    <script>
+      setTimeout(() => {
+        const appElement = document.getElementById('app');
+        if (appElement && appElement.innerHTML.trim()) {
+          const svelteIndicator = document.createElement('div');
+          svelteIndicator.style.cssText = 'position: fixed; top: 50px; left: 0; background: #FF9800; color: white; padding: 5px; font-family: Arial; z-index: 1000;';
+          svelteIndicator.textContent = 'Svelte Mounted ✓';
+          document.body.appendChild(svelteIndicator);
+        } else {
+          const errorIndicator = document.createElement('div');
+          errorIndicator.style.cssText = 'position: fixed; top: 50px; left: 0; background: #f44336; color: white; padding: 5px; font-family: Arial; z-index: 1000;';
+          errorIndicator.textContent = 'Svelte Failed ✗';
+          document.body.appendChild(errorIndicator);
+          console.error('Svelte app failed to mount - app element is empty');
+        }
+      }, 500);
+    </script>
   </body>
 </html>

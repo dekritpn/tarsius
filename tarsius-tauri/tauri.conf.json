@@ -5,11 +5,7 @@
   },
   "tauri": {
     "bundle": {
-      "identifier": "com.tarsius.dev",
-      "targets": "all"
-    },
-    "security": {
-      "csp": null
+      "identifier": "com.tarsius.dev"
     },
     "windows": [
       {

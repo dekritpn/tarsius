@@ -103,37 +103,6 @@ fn update_scratch(
 }
 
 #[tauri::command]
-fn load_scratch(
-    state: State<AppState>,
-    id: String,
-) -> std::result::Result<tarsius_core::ScratchDto, String> {
-    let scratch = state
-        .scratch_manager
-        .load(&id)
-        .map_err(|e| format!("Failed to load scratch: {}", e))?;
-    Ok(scratch.into())
-}
-
-#[tauri::command]
-fn list_scratches(
-    state: State<AppState>,
-) -> std::result::Result<Vec<tarsius_core::ScratchDto>, String> {
-    let scratches = state
-        .scratch_manager
-        .list()
-        .map_err(|e| format!("Failed to list scratches: {}", e))?;
-    Ok(scratches.into_iter().map(Into::into).collect())
-}
-
-#[tauri::command]
-fn delete_scratch(state: State<AppState>, id: String) -> std::result::Result<(), String> {
-    state
-        .scratch_manager
-        .delete(&id)
-        .map_err(|e| format!("Failed to delete scratch: {}", e))
-}
-
-#[tauri::command]
 fn create_project(
     state: State<AppState>,
     request: CreateProjectRequest,
@@ -181,3 +150,36 @@ fn list_projects(
         .map_err(|e| format!("Failed to list projects: {}", e))?;
     Ok(projects.into_iter().map(Into::into).collect())
 }
+
+#[tauri::command]
+fn load_scratch(
+    state: State<AppState>,
+    id: String,
+) -> std::result::Result<tarsius_core::ScratchDto, String> {
+    let scratch = state
+        .scratch_manager
+        .load(&id)
+        .map_err(|e| format!("Failed to load scratch: {}", e))?;
+    Ok(scratch.into())
+}
+
+#[tauri::command]
+fn list_scratches(
+    state: State<AppState>,
+) -> std::result::Result<Vec<tarsius_core::ScratchDto>, String> {
+    let scratches = state
+        .scratch_manager
+        .list()
+        .map_err(|e| format!("Failed to list scratches: {}", e))?;
+    Ok(scratches.into_iter().map(Into::into).collect())
+}
+
+#[tauri::command]
+fn delete_scratch(state: State<AppState>, id: String) -> std::result::Result<(), String> {
+    state
+        .scratch_manager
+        .delete(&id)
+        .map_err(|e| format!("Failed to delete scratch: {}", e))
+}
+
+

@@ -1,11 +1,11 @@
 <script>
-  // Import both views with conditional loading
-  import ScratchesView from './ScratchesView.svelte';
-  import ProjectsView from './ProjectsView.svelte';
+  // Temporarily remove all imports to test basic Svelte mounting
+  // import ScratchesView from './ScratchesView.svelte';
+  // import ProjectsView from './ProjectsView.svelte';
 
   let currentView = 'scratches';
 
-  console.log('App.svelte script loaded - testing ScratchesView import');
+  console.log('App.svelte script loaded - testing basic mounting without imports');
 
   function switchView(view) {
     console.log('Switching view to:', view);
@@ -13,7 +13,7 @@
   }
 
   // Debug: Show that component mounted
-  console.log('App.svelte component created');
+  console.log('App.svelte component created successfully');
 </script>
 
 <main>
@@ -26,12 +26,20 @@
   </aside>
    <section>
       {#if currentView === 'scratches'}
-        <ScratchesView />
+        <div style="padding: 20px; background: #e8f5e8; border: 2px solid #4CAF50;">
+          <h2>🗒️ Scratches View</h2>
+          <p>Basic scratches content - no imports</p>
+          <p>Current view: {currentView}</p>
+        </div>
       {:else if currentView === 'projects'}
-        <ProjectsView />
+        <div style="padding: 20px; background: #e3f2fd; border: 2px solid #2196F3;">
+          <h2>📁 Projects View</h2>
+          <p>Basic projects content - no imports</p>
+          <p>Current view: {currentView}</p>
+        </div>
       {:else if currentView === 'latex'}
         <h1>LaTeX</h1>
-        <p>LaTeX view</p>
+        <p>LaTeX view - no imports</p>
       {/if}
    </section>
 </main>

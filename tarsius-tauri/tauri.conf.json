@@ -1,4 +1,8 @@
 {
+  "build": {
+    "devPath": "http://localhost:8080",
+    "distDir": "/home/dq/Dev/tarsius/tarsius-tauri/frontend/public"
+  },
   "package": {
     "productName": "Tarsius",
     "version": "0.1.0"
@@ -6,6 +10,9 @@
   "tauri": {
     "bundle": {
       "identifier": "com.tarsius.dev"
+    },
+    "security": {
+      "csp": null
     },
     "windows": [
       {

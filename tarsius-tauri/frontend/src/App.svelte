@@ -1,6 +1,7 @@
 <script>
-  import ScratchesView from './ScratchesView.svelte';
-  import ProjectsView from './ProjectsView.svelte';
+  // Temporarily comment out imports to isolate the issue
+  // import ScratchesView from './ScratchesView.svelte';
+  // import ProjectsView from './ProjectsView.svelte';
 
   let currentView = 'scratches';
 
@@ -22,9 +23,17 @@
   </aside>
    <section>
       {#if currentView === 'scratches'}
-        <ScratchesView />
+        <div style="padding: 20px; background: #e8f5e8; border: 2px solid #4CAF50;">
+          <h2>🗒️ Scratches View</h2>
+          <p>Components commented out for testing</p>
+          <p>Current view: {currentView}</p>
+        </div>
       {:else if currentView === 'projects'}
-        <ProjectsView />
+        <div style="padding: 20px; background: #e3f2fd; border: 2px solid #2196F3;">
+          <h2>📁 Projects View</h2>
+          <p>Components commented out for testing</p>
+          <p>Current view: {currentView}</p>
+        </div>
       {:else if currentView === 'latex'}
         <h1>LaTeX</h1>
         <p>LaTeX view - Coming soon!</p>

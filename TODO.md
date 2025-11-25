@@ -122,22 +122,22 @@
 
 ## **Phase 6 — Project System**
 
-* [ ] Implement Project Outline View:
-  
-  * [ ] Sections
-  * [ ] Subsections
-  * [ ] Reordering
+* [x] Implement Project Outline View:
 
-* [ ] Implement Document Editor (Monaco/CodeMirror)
+  * [x] Sections
+  * [x] Subsections
+  * [x] Reordering
 
-* [ ] Implement Scratches Panel filtered by search
+* [x] Implement Document Editor (Monaco/CodeMirror)
 
-* [ ] Enable drag-and-drop from Scratches into Outline:
-  
-  * [ ] Include mode (copy body)
-  * [ ] Store link metadata for later use
+* [x] Implement Scratches Panel filtered by search
 
-* [ ] Deliverable: **User can assemble documents from Scratches**
+* [x] Enable drag-and-drop from Scratches into Outline:
+
+  * [x] Include mode (copy body)
+  * [x] Store link metadata for later use
+
+* [x] Deliverable: **User can assemble documents from Scratches**
 
 ---
 

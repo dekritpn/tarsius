@@ -117,7 +117,13 @@ impl ScratchManager {
         Self { repo }
     }
 
-    pub fn create(&self, title: String, content: String, tags: Vec<String>, source: Option<String>) -> Result<Scratch> {
+    pub fn create(
+        &self,
+        title: String,
+        content: String,
+        tags: Vec<String>,
+        source: Option<String>,
+    ) -> Result<Scratch> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now();
         let scratch = Scratch {
@@ -133,7 +139,14 @@ impl ScratchManager {
         Ok(scratch)
     }
 
-    pub fn update(&self, id: String, title: Option<String>, content: Option<String>, tags: Option<Vec<String>>, source: Option<Option<String>>) -> Result<Scratch> {
+    pub fn update(
+        &self,
+        id: String,
+        title: Option<String>,
+        content: Option<String>,
+        tags: Option<Vec<String>>,
+        source: Option<Option<String>>,
+    ) -> Result<Scratch> {
         let mut scratch = self.repo.load(&id)?;
         if let Some(t) = title {
             scratch.title = t;
@@ -174,7 +187,12 @@ impl ProjectManager {
         Self { repo }
     }
 
-    pub fn create(&self, title: String, template_id: String, output_dir: String) -> Result<Project> {
+    pub fn create(
+        &self,
+        title: String,
+        template_id: String,
+        output_dir: String,
+    ) -> Result<Project> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now();
         let outline = OutlineNode {
@@ -385,7 +403,11 @@ impl From<ProjectSettingsDto> for ProjectSettings {
 impl TryFrom<OutlineNodeDto> for OutlineNode {
     type Error = String;
     fn try_from(dto: OutlineNodeDto) -> std::result::Result<Self, Self::Error> {
-        let children = dto.children.into_iter().map(TryInto::try_into).collect::<std::result::Result<Vec<_>, _>>()?;
+        let children = dto
+            .children
+            .into_iter()
+            .map(TryInto::try_into)
+            .collect::<std::result::Result<Vec<_>, _>>()?;
         let scratches = dto.scratches.into_iter().map(Into::into).collect();
         Ok(OutlineNode {
             id: dto.id,
@@ -400,8 +422,12 @@ impl TryFrom<OutlineNodeDto> for OutlineNode {
 impl TryFrom<ProjectDto> for Project {
     type Error = String;
     fn try_from(dto: ProjectDto) -> std::result::Result<Self, Self::Error> {
-        let created_at = chrono::DateTime::parse_from_rfc3339(&dto.created_at).map_err(|e| e.to_string())?.with_timezone(&Utc);
-        let modified_at = chrono::DateTime::parse_from_rfc3339(&dto.modified_at).map_err(|e| e.to_string())?.with_timezone(&Utc);
+        let created_at = chrono::DateTime::parse_from_rfc3339(&dto.created_at)
+            .map_err(|e| e.to_string())?
+            .with_timezone(&Utc);
+        let modified_at = chrono::DateTime::parse_from_rfc3339(&dto.modified_at)
+            .map_err(|e| e.to_string())?
+            .with_timezone(&Utc);
         let outline = dto.outline.try_into()?;
         let settings = dto.settings.into();
         Ok(Project {
@@ -412,5 +438,151 @@ impl TryFrom<ProjectDto> for Project {
             created_at,
             modified_at,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::Utc;
+
+    #[test]
+    fn test_scratch_creation() {
+        let title = "Test Scratch".to_string();
+        let content = "Test content".to_string();
+        let tags = vec!["tag1".to_string(), "tag2".to_string()];
+        let source = Some("test source".to_string());
+
+        // Mock repository - for simplicity, just test the manager logic
+        struct MockScratchRepo;
+
+        impl ScratchRepository for MockScratchRepo {
+            fn save(&self, _scratch: &Scratch) -> Result<()> {
+                Ok(())
+            }
+
+            fn load(&self, _id: &str) -> Result<Scratch> {
+                Err(CoreError::NotFound("Not implemented".to_string()))
+            }
+
+            fn list(&self) -> Result<Vec<Scratch>> {
+                Ok(vec![])
+            }
+
+            fn delete(&self, _id: &str) -> Result<()> {
+                Ok(())
+            }
+        }
+
+        let repo = Box::new(MockScratchRepo);
+        let manager = ScratchManager::new(repo);
+
+        let scratch = manager
+            .create(title.clone(), content.clone(), tags.clone(), source.clone())
+            .unwrap();
+
+        assert_eq!(scratch.title, title);
+        assert_eq!(scratch.content, content);
+        assert_eq!(scratch.tags, tags);
+        assert_eq!(scratch.source, source);
+        assert!(!scratch.id.is_empty());
+        assert!(scratch.created_at <= Utc::now());
+        assert!(scratch.modified_at <= Utc::now());
+    }
+
+    #[test]
+    fn test_project_creation() {
+        let title = "Test Project".to_string();
+        let template_id = "template1".to_string();
+        let output_dir = "/tmp/output".to_string();
+
+        // Mock repository
+        struct MockProjectRepo;
+
+        impl ProjectRepository for MockProjectRepo {
+            fn save(&self, _project: &Project) -> Result<()> {
+                Ok(())
+            }
+
+            fn load(&self, _id: &str) -> Result<Project> {
+                Err(CoreError::NotFound("Not implemented".to_string()))
+            }
+
+            fn list(&self) -> Result<Vec<Project>> {
+                Ok(vec![])
+            }
+
+            fn delete(&self, _id: &str) -> Result<()> {
+                Ok(())
+            }
+        }
+
+        let repo = Box::new(MockProjectRepo);
+        let manager = ProjectManager::new(repo);
+
+        let project = manager
+            .create(title.clone(), template_id.clone(), output_dir.clone())
+            .unwrap();
+
+        assert_eq!(project.title, title);
+        assert_eq!(project.settings.template_id, template_id);
+        assert_eq!(project.settings.output_dir, output_dir);
+        assert!(!project.id.is_empty());
+        assert_eq!(project.outline.title, "Root");
+        assert!(project.created_at <= Utc::now());
+        assert!(project.modified_at <= Utc::now());
+    }
+
+    #[test]
+    fn test_scratch_dto_conversion() {
+        let scratch = Scratch {
+            id: "test-id".to_string(),
+            title: "Test Title".to_string(),
+            content: "Test Content".to_string(),
+            created_at: Utc::now(),
+            modified_at: Utc::now(),
+            tags: vec!["tag1".to_string()],
+            source: Some("source".to_string()),
+        };
+
+        let dto: ScratchDto = scratch.clone().into();
+
+        assert_eq!(dto.id, scratch.id);
+        assert_eq!(dto.title, scratch.title);
+        assert_eq!(dto.content, scratch.content);
+        assert_eq!(dto.tags, scratch.tags);
+        assert_eq!(dto.source, scratch.source);
+        // Check timestamps are RFC3339
+        assert!(dto.created_at.parse::<chrono::DateTime<Utc>>().is_ok());
+        assert!(dto.modified_at.parse::<chrono::DateTime<Utc>>().is_ok());
+    }
+
+    #[test]
+    fn test_project_dto_conversion() {
+        let project = Project {
+            id: "test-id".to_string(),
+            title: "Test Project".to_string(),
+            outline: OutlineNode {
+                id: "outline-id".to_string(),
+                title: "Root".to_string(),
+                content: None,
+                children: vec![],
+                scratches: vec![],
+            },
+            settings: ProjectSettings {
+                template_id: "template1".to_string(),
+                output_dir: "/tmp".to_string(),
+            },
+            created_at: Utc::now(),
+            modified_at: Utc::now(),
+        };
+
+        let dto: ProjectDto = project.clone().into();
+
+        assert_eq!(dto.id, project.id);
+        assert_eq!(dto.title, project.title);
+        assert_eq!(dto.outline.id, project.outline.id);
+        assert_eq!(dto.settings.template_id, project.settings.template_id);
+        assert_eq!(dto.settings.output_dir, project.settings.output_dir);
     }
 }

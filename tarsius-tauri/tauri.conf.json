@@ -1,60 +1,21 @@
 {
-  "build": {
-    "beforeBuildCommand": "cd frontend && npm run build",
-    "beforeDevCommand": "cd frontend && npm run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "frontend/dist",
-    "withGlobalTauri": true
-  },
   "package": {
     "productName": "Tarsius",
     "version": "0.1.0"
   },
   "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
-    },
     "bundle": {
-      "active": true,
-      "category": "Productivity",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [],
       "identifier": "com.tarsius.dev",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
+      "targets": "all"
     },
     "security": {
       "csp": null
     },
     "windows": [
       {
-        "fullscreen": false,
-        "height": 600,
-        "resizable": true,
         "title": "Tarsius",
-        "width": 800
+        "width": 800,
+        "height": 600
       }
     ]
   }

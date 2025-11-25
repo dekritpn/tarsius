@@ -1,33 +1,8 @@
 <script>
-  import { onMount } from 'svelte';
-  import { invoke } from '@tauri-apps/api/tauri';
+  import ScratchesView from './ScratchesView.svelte';
+  import ProjectsView from './ProjectsView.svelte';
 
-  let name = 'world';
-  let scratches = [];
   let currentView = 'scratches';
-  let newTitle = '';
-  let newContent = '';
-
-  onMount(async () => {
-    // Test roundtrip
-    try {
-      scratches = await invoke('list_scratches');
-      console.log('Scratches:', scratches);
-    } catch (e) {
-      console.error('Error:', e);
-    }
-  });
-
-  async function createScratch() {
-    try {
-      const scratch = await invoke('create_scratch', { title: newTitle, content: newContent, tags: [], source: null });
-      scratches = [...scratches, scratch];
-      newTitle = '';
-      newContent = '';
-    } catch (e) {
-      console.error('Error creating scratch:', e);
-    }
-  }
 
   function switchView(view) {
     currentView = view;
@@ -42,27 +17,16 @@
       <button on:click={() => switchView('latex')}>LaTeX</button>
     </nav>
   </aside>
-  <section>
-    {#if currentView === 'scratches'}
-      <h1>Scratches</h1>
-      <form on:submit|preventDefault={createScratch}>
-        <input bind:value={newTitle} placeholder="Title" required />
-        <textarea bind:value={newContent} placeholder="Content"></textarea>
-        <button type="submit">Create Scratch</button>
-      </form>
-      <ul>
-        {#each scratches as scratch}
-          <li>{scratch.title}: {scratch.content}</li>
-        {/each}
-      </ul>
-    {:else if currentView === 'projects'}
-      <h1>Projects</h1>
-      <p>Projects view</p>
-    {:else if currentView === 'latex'}
-      <h1>LaTeX</h1>
-      <p>LaTeX view</p>
-    {/if}
-  </section>
+   <section>
+      {#if currentView === 'scratches'}
+        <ScratchesView />
+      {:else if currentView === 'projects'}
+        <ProjectsView />
+      {:else if currentView === 'latex'}
+        <h1>LaTeX</h1>
+        <p>LaTeX view</p>
+      {/if}
+   </section>
 </main>
 
 <style>

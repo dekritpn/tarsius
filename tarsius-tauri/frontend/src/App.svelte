@@ -1,8 +1,10 @@
 <script>
-  // Minimal Svelte component for testing
+  import ScratchesView from './ScratchesView.svelte';
+  import ProjectsView from './ProjectsView.svelte';
+
   let currentView = 'scratches';
 
-  console.log('Minimal App.svelte loaded');
+  console.log('Full App.svelte loaded with component imports');
 
   function switchView(view) {
     console.log('Switching to view:', view);
@@ -20,20 +22,12 @@
   </aside>
    <section>
       {#if currentView === 'scratches'}
-        <div style="padding: 20px; background: #e8f5e8; border: 2px solid #4CAF50;">
-          <h2>🗒️ Scratches View</h2>
-          <p>Minimal Svelte content</p>
-          <p>Current view: {currentView}</p>
-        </div>
+        <ScratchesView />
       {:else if currentView === 'projects'}
-        <div style="padding: 20px; background: #e3f2fd; border: 2px solid #2196F3;">
-          <h2>📁 Projects View</h2>
-          <p>Minimal Svelte content</p>
-          <p>Current view: {currentView}</p>
-        </div>
+        <ProjectsView />
       {:else if currentView === 'latex'}
         <h1>LaTeX</h1>
-        <p>LaTeX view</p>
+        <p>LaTeX view - Coming soon!</p>
       {/if}
    </section>
 </main>

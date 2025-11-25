@@ -11,19 +11,18 @@
   let newScratchContent = '';
   let autosaveTimeout;
 
-  // We'll handle Tauri API availability at runtime
-  console.log('ScratchesView initialized');
+  // Check if we're in Tauri environment
+  let isTauri = typeof window !== 'undefined' && window.__TAURI__;
+  console.log('ScratchesView: Tauri environment detected:', isTauri);
 
   onMount(async () => {
     console.log('ScratchesView mounted');
-    await loadTauriAPIs();
     await loadScratches();
   });
 
   async function loadScratches() {
     try {
-      // Try to use Tauri API if available
-      if (window.__TAURI__) {
+      if (isTauri) {
         const { invoke } = await import('@tauri-apps/api/tauri');
         console.log('Loading scratches from Tauri...');
         scratches = await invoke('list_scratches');
@@ -79,19 +78,35 @@
   async function createScratch() {
     if (!newScratchTitle.trim()) return;
     try {
-      const scratch = await invoke('create_scratch', {
-        title: newScratchTitle,
-        content: newScratchContent,
-        tags: [],
-        source: null
-      });
-      scratches = [...scratches, scratch];
-      newScratchTitle = '';
-      newScratchContent = '';
-      isCreating = false;
+      if (isTauri) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        await invoke('create_scratch', {
+          title: newScratchTitle,
+          content: newScratchContent,
+          tags: [],
+          source: null
+        });
+        await loadScratches();
+      } else {
+        // Mock create for development
+        const newScratch = {
+          id: Date.now().toString(),
+          title: newScratchTitle,
+          content: newScratchContent,
+          tags: [],
+          created_at: new Date().toISOString(),
+          modified_at: new Date().toISOString()
+        };
+        scratches = [...scratches, newScratch];
+        filterScratches();
+      }
     } catch (e) {
       console.error('Error creating scratch:', e);
     }
+
+    newScratchTitle = '';
+    newScratchContent = '';
+    isCreating = false;
   }
 
   function selectScratch(scratch) {
@@ -101,18 +116,29 @@
 
   async function updateScratch() {
     if (!selectedScratch) return;
+
     try {
-      const updated = await invoke('update_scratch', {
-        id: selectedScratch.id,
-        content: editorContent
-      });
-      scratches = scratches.map(s => s.id === updated.id ? updated : s);
-      selectedScratch = updated;
+      if (isTauri) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        await invoke('update_scratch', {
+          id: selectedScratch.id,
+          title: selectedScratch.title,
+          content: editorContent,
+          tags: selectedScratch.tags,
+          source: selectedScratch.source
+        });
+      } else {
+        // Mock update for development
+        scratches = scratches.map(s =>
+          s.id === selectedScratch.id
+            ? { ...s, content: editorContent, modified_at: new Date().toISOString() }
+            : s
+        );
+      }
     } catch (e) {
       console.error('Error updating scratch:', e);
     }
   }
-
 
 </script>
 

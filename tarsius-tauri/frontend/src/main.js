@@ -1,11 +1,14 @@
-import App from './App.svelte';
+// Try importing Svelte runtime first
+import 'svelte/internal';
 
-console.log('🎯 Starting Tarsius app with Svelte...');
+console.log('🎯 Starting Tarsius app with Svelte runtime...');
 
 let app;
 
 try {
-  console.log('🔍 About to check target element...');
+  console.log('🔍 Importing App.svelte...');
+  const App = (await import('./App.svelte')).default;
+  console.log('✅ App.svelte imported successfully');
 
   // Check if target element exists
   const targetElement = document.getElementById('app');
@@ -15,7 +18,7 @@ try {
     throw new Error('Target element #app not found');
   }
 
-  console.log('🎯 Attempting Svelte app creation...');
+  console.log('🎯 Creating Svelte app...');
 
   // Create and mount the app
   app = new App({
@@ -36,6 +39,7 @@ try {
 
 } catch (error) {
   console.error('❌ Error mounting Tarsius Svelte app:', error);
+  console.error('Error stack:', error.stack);
 
   // Show the working DOM version as fallback
   console.log('🔄 Falling back to basic DOM version...');
@@ -93,7 +97,7 @@ try {
   // Show error indicator
   const errorDiv = document.createElement('div');
   errorDiv.style.cssText = 'position: fixed; top: 75px; left: 0; background: #f44336; color: white; padding: 10px; font-family: Arial; z-index: 1000; max-width: 500px;';
-  errorDiv.innerHTML = `<strong>Svelte Error:</strong><br><pre style="margin: 5px 0; font-size: 12px;">${error.message}</pre>`;
+  errorDiv.innerHTML = `<strong>Svelte Error:</strong><br><pre style="margin: 5px 0; font-size: 12px;">${error.message}</pre><br><strong>Stack:</strong><br><pre style="margin: 5px 0; font-size: 10px; max-height: 200px; overflow: auto;">${error.stack}</pre>`;
   document.body.appendChild(errorDiv);
 
   app = null;

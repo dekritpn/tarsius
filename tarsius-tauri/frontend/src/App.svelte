@@ -1,7 +1,7 @@
 <script>
-  // Test importing ScratchesView first
+  // Import both views with conditional loading
   import ScratchesView from './ScratchesView.svelte';
-  // import ProjectsView from './ProjectsView.svelte';
+  import ProjectsView from './ProjectsView.svelte';
 
   let currentView = 'scratches';
 
@@ -33,11 +33,7 @@
       {#if currentView === 'scratches'}
         <ScratchesView />
       {:else if currentView === 'projects'}
-        <div style="padding: 20px; background: #e3f2fd; border: 2px solid #2196F3;">
-          <h2>📁 Projects View</h2>
-          <p>Basic projects content loaded successfully!</p>
-          <p>Current view: {currentView}</p>
-        </div>
+        <ProjectsView />
       {:else if currentView === 'latex'}
         <h1>LaTeX</h1>
         <p>LaTeX view</p>

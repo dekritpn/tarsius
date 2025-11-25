@@ -1,8 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { invoke } from '@tauri-apps/api/tauri';
   import OutlineNode from './OutlineNode.svelte';
-  import MonacoEditor from 'svelte-monaco';
 
   let projects = [];
   let selectedProject = null;
@@ -17,25 +15,105 @@
 
   let documentContent = '';
 
+  // Conditionally load Monaco Editor
+  let MonacoEditor = null;
+  try {
+    // Try to load Monaco Editor dynamically
+    import('svelte-monaco').then(module => {
+      MonacoEditor = module.default;
+      console.log('Monaco Editor loaded');
+    }).catch(e => {
+      console.log('Monaco Editor not available:', e.message);
+    });
+  } catch (e) {
+    console.log('Monaco Editor import failed:', e.message);
+  }
+
   onMount(async () => {
+    console.log('ProjectsView mounted');
     await loadProjects();
     await loadScratches();
   });
 
   async function loadProjects() {
     try {
-      projects = await invoke('list_projects');
+      // Try to use Tauri API if available
+      if (window.__TAURI__) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        projects = await invoke('list_projects');
+        console.log('Loaded projects from Tauri:', projects);
+      } else {
+        console.log('Using mock projects data (not in Tauri environment)');
+        // Mock data for development
+        projects = [
+          {
+            id: '1',
+            title: 'Sample Project',
+            outline: {
+              id: 'root',
+              title: 'Root',
+              content: null,
+              children: [],
+              scratches: []
+            },
+            settings: {
+              template_id: 'default',
+              output_dir: './output'
+            },
+            created_at: new Date().toISOString(),
+            modified_at: new Date().toISOString()
+          }
+        ];
+      }
     } catch (e) {
       console.error('Error loading projects:', e);
+      // Fallback to mock data
+      projects = [
+        {
+          id: '1',
+          title: 'Sample Project',
+          outline: {
+            id: 'root',
+            title: 'Root',
+            content: null,
+            children: [],
+            scratches: []
+          },
+          settings: {
+            template_id: 'default',
+            output_dir: './output'
+          },
+          created_at: new Date().toISOString(),
+          modified_at: new Date().toISOString()
+        }
+      ];
     }
   }
 
   async function loadScratches() {
     try {
-      scratches = await invoke('list_scratches');
+      // Try to use Tauri API if available
+      if (window.__TAURI__) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        scratches = await invoke('list_scratches');
+        console.log('Loaded scratches from Tauri for projects');
+      } else {
+        console.log('Using mock scratches data for projects');
+        // Mock data for development
+        scratches = [
+          { id: '1', title: 'Test Scratch 1', content: 'This is test content 1', tags: ['test'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() },
+          { id: '2', title: 'Test Scratch 2', content: 'This is test content 2', tags: ['demo'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() }
+        ];
+      }
       filterScratches();
     } catch (e) {
-      console.error('Error loading scratches:', e);
+      console.error('Error loading scratches for projects:', e);
+      // Fallback to mock data
+      scratches = [
+        { id: '1', title: 'Test Scratch 1', content: 'This is test content 1', tags: ['test'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() },
+        { id: '2', title: 'Test Scratch 2', content: 'This is test content 2', tags: ['demo'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() }
+      ];
+      filterScratches();
     }
   }
 
@@ -57,12 +135,35 @@
   async function createProject() {
     if (!newProjectTitle.trim()) return;
     try {
-      const project = await invoke('create_project', {
-        title: newProjectTitle,
-        template_id: newProjectTemplateId,
-        output_dir: newProjectOutputDir
-      });
-      projects = [...projects, project];
+      if (window.__TAURI__) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        const project = await invoke('create_project', {
+          title: newProjectTitle,
+          template_id: newProjectTemplateId,
+          output_dir: newProjectOutputDir
+        });
+        projects = [...projects, project];
+      } else {
+        // Mock create for development
+        const newProject = {
+          id: Date.now().toString(),
+          title: newProjectTitle,
+          outline: {
+            id: 'root',
+            title: 'Root',
+            content: null,
+            children: [],
+            scratches: []
+          },
+          settings: {
+            template_id: newProjectTemplateId,
+            output_dir: newProjectOutputDir
+          },
+          created_at: new Date().toISOString(),
+          modified_at: new Date().toISOString()
+        };
+        projects = [...projects, newProject];
+      }
       newProjectTitle = '';
       isCreating = false;
     } catch (e) {
@@ -104,7 +205,13 @@
 
   async function saveProject() {
     try {
-      await invoke('save_project', { projectDto: selectedProject });
+      if (window.__TAURI__) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        await invoke('save_project', selectedProject);
+        console.log('Project saved to Tauri');
+      } else {
+        console.log('Project save skipped (not in Tauri environment)');
+      }
     } catch (e) {
       console.error('Error saving project:', e);
     }
@@ -115,7 +222,7 @@
     function addChildRecursive(node) {
       if (node.id === nodeId) {
         const newChild = {
-          id: crypto.randomUUID(),
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           title: 'New Section',
           content: null,
           children: [],

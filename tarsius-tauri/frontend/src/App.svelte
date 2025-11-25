@@ -1,10 +1,11 @@
 <script>
-  import ScratchesView from './ScratchesView.svelte';
-  import ProjectsView from './ProjectsView.svelte';
+  // Temporarily comment out complex imports to test basic mounting
+  // import ScratchesView from './ScratchesView.svelte';
+  // import ProjectsView from './ProjectsView.svelte';
 
   let currentView = 'scratches';
 
-  console.log('App.svelte script loaded');
+  console.log('App.svelte script loaded - testing basic mounting');
 
   function switchView(view) {
     console.log('Switching view to:', view);
@@ -30,9 +31,17 @@
   </aside>
    <section>
       {#if currentView === 'scratches'}
-        <ScratchesView />
+        <div style="padding: 20px; background: #e8f5e8; border: 2px solid #4CAF50;">
+          <h2>🗒️ Scratches View</h2>
+          <p>Basic scratches content loaded successfully!</p>
+          <p>Current view: {currentView}</p>
+        </div>
       {:else if currentView === 'projects'}
-        <ProjectsView />
+        <div style="padding: 20px; background: #e3f2fd; border: 2px solid #2196F3;">
+          <h2>📁 Projects View</h2>
+          <p>Basic projects content loaded successfully!</p>
+          <p>Current view: {currentView}</p>
+        </div>
       {:else if currentView === 'latex'}
         <h1>LaTeX</h1>
         <p>LaTeX view</p>

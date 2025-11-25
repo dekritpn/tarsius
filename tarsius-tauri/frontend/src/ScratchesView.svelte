@@ -1,9 +1,5 @@
 <script>
-  // Temporarily comment out problematic imports to test basic component loading
-  // import { onMount } from 'svelte';
-  // import { invoke } from '@tauri-apps/api/tauri';
-  // import VirtualList from 'svelte-virtual-list';
-  // import MonacoEditor from 'svelte-monaco';
+  import { onMount } from 'svelte';
 
   let scratches = [];
   let selectedScratch = null;
@@ -15,20 +11,55 @@
   let newScratchContent = '';
   let autosaveTimeout;
 
-  // Mock data for testing
-  scratches = [
-    { id: '1', title: 'Test Scratch 1', content: 'This is test content 1', tags: ['test'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() },
-    { id: '2', title: 'Test Scratch 2', content: 'This is test content 2', tags: ['demo'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() }
-  ];
-  filteredScratches = scratches;
+  // We'll handle Tauri API availability at runtime
+  console.log('ScratchesView initialized');
 
-  console.log('ScratchesView loaded with mock data');
+  onMount(async () => {
+    console.log('ScratchesView mounted');
+    await loadTauriAPIs();
+    await loadScratches();
+  });
 
-  // Comment out onMount for now
-  // onMount(async () => {
-  //   console.log('ScratchesView mounted');
-  //   await loadScratches();
-  // });
+  async function loadScratches() {
+    try {
+      // Try to use Tauri API if available
+      if (window.__TAURI__) {
+        const { invoke } = await import('@tauri-apps/api/tauri');
+        console.log('Loading scratches from Tauri...');
+        scratches = await invoke('list_scratches');
+        console.log('Loaded scratches from Tauri:', scratches);
+      } else {
+        console.log('Using mock scratches data (not in Tauri environment)');
+        // Mock data for development
+        scratches = [
+          { id: '1', title: 'Test Scratch 1', content: 'This is test content 1', tags: ['test'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() },
+          { id: '2', title: 'Test Scratch 2', content: 'This is test content 2', tags: ['demo'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() }
+        ];
+      }
+      filterScratches();
+    } catch (e) {
+      console.error('Error loading scratches:', e);
+      // Fallback to mock data
+      scratches = [
+        { id: '1', title: 'Test Scratch 1', content: 'This is test content 1', tags: ['test'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() },
+        { id: '2', title: 'Test Scratch 2', content: 'This is test content 2', tags: ['demo'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() }
+      ];
+      filterScratches();
+    }
+  }
+
+
+
+
+
+  function handleEditorChange() {
+    if (autosaveTimeout) clearTimeout(autosaveTimeout);
+    autosaveTimeout = setTimeout(updateScratch, 1000);
+  }
+
+  $: if (searchQuery !== undefined) {
+    filterScratches();
+  }
 
   function filterScratches() {
     if (!searchQuery) {
@@ -82,25 +113,7 @@
     }
   }
 
-  function handleEditorChange(event) {
-    editorContent = event.detail.value;
-    clearTimeout(autosaveTimeout);
-    autosaveTimeout = setTimeout(updateScratch, 1000); // Autosave after 1 second
-  }
 
-  async function deleteScratch(scratch) {
-    if (!confirm(`Delete "${scratch.title}"?`)) return;
-    try {
-      await invoke('delete_scratch', { id: scratch.id });
-      scratches = scratches.filter(s => s.id !== scratch.id);
-      if (selectedScratch && selectedScratch.id === scratch.id) {
-        selectedScratch = null;
-        editorContent = '';
-      }
-    } catch (e) {
-      console.error('Error deleting scratch:', e);
-    }
-  }
 </script>
 
 <div style="padding: 20px; background: #f0f8ff; border: 2px solid #4CAF50;">

@@ -30,24 +30,51 @@
 </main>
 
 <style>
-  main {
-    display: flex;
-    height: 100vh;
-  }
-  aside {
-    width: 200px;
-    background: #f0f0f0;
-    padding: 1rem;
-  }
-  section {
-    flex: 1;
-    padding: 1rem;
-  }
-  nav {
-    display: flex;
-    flex-direction: column;
-  }
-  button {
-    margin-bottom: 0.5rem;
-  }
+   :global(body) {
+     margin: 0;
+     padding: 0;
+     font-family: Arial, sans-serif;
+     background: #fff;
+   }
+
+   main {
+     display: flex;
+     height: 100vh;
+     background: #f8f9fa;
+   }
+
+   aside {
+     width: 200px;
+     background: #f0f0f0;
+     padding: 1rem;
+     border-right: 1px solid #ddd;
+   }
+
+   section {
+     flex: 1;
+     padding: 1rem;
+     background: white;
+   }
+
+   nav {
+     display: flex;
+     flex-direction: column;
+   }
+
+   button {
+     margin-bottom: 0.5rem;
+     padding: 0.5rem 1rem;
+     border: 1px solid #ccc;
+     background: white;
+     cursor: pointer;
+   }
+
+   button:hover {
+     background: #e9ecef;
+   }
+
+   h1 {
+     color: #333;
+     margin-top: 0;
+   }
 </style>

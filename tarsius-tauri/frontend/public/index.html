@@ -5,8 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tarsius</title>
     <link rel="stylesheet" href="/build/bundle.css" />
+    <style>
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+        background: #f8f9fa;
+      }
+      .loading h1 {
+        color: #333;
+      }
+    </style>
   </head>
   <body>
+    <div id="loading" class="loading">
+      <div>
+        <h1>🚀 Tarsius Loading...</h1>
+        <p>If you see this, the frontend is loading correctly.</p>
+        <p>Check the console for any JavaScript errors.</p>
+      </div>
+    </div>
     <script src="/build/bundle.js"></script>
+    <script>
+      // Hide loading message once app mounts
+      setTimeout(() => {
+        const loading = document.getElementById('loading');
+        if (loading) loading.style.display = 'none';
+      }, 1000);
+    </script>
   </body>
 </html>

@@ -15,15 +15,25 @@
   let autosaveTimeout;
 
   onMount(async () => {
+    console.log('ScratchesView mounted');
     await loadScratches();
   });
 
   async function loadScratches() {
     try {
+      console.log('Loading scratches...');
       scratches = await invoke('list_scratches');
+      console.log('Loaded scratches:', scratches);
       filteredScratches = scratches;
     } catch (e) {
       console.error('Error loading scratches:', e);
+      // For debugging, add some mock data
+      scratches = [
+        { id: '1', title: 'Test Scratch 1', content: 'This is test content 1', tags: ['test'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() },
+        { id: '2', title: 'Test Scratch 2', content: 'This is test content 2', tags: ['demo'], created_at: new Date().toISOString(), modified_at: new Date().toISOString() }
+      ];
+      filteredScratches = scratches;
+      console.log('Using mock data due to error');
     }
   }
 

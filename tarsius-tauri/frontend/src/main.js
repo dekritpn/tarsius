@@ -1,17 +1,9 @@
-// Create a working Tarsius app using plain JavaScript
-console.log('🎯 Starting Tarsius app with plain JavaScript...');
+// Create the Tarsius application interface
+const targetElement = document.getElementById('app');
 
-try {
-  // Check if target element exists
-  const targetElement = document.getElementById('app');
-  console.log('Target element found:', !!targetElement);
-
-  if (!targetElement) {
-    throw new Error('Target element #app not found');
-  }
-
-  console.log('🎯 Creating Tarsius interface...');
-
+if (!targetElement) {
+  console.error('Target element #app not found');
+} else {
   // Create the main application interface
   targetElement.innerHTML = `
     <main style="display: flex; height: 100vh; background: #f8f9fa; font-family: Arial, sans-serif;">
@@ -176,21 +168,5 @@ try {
   // Initialize button styles
   updateButtonStyles();
 
-  console.log('✅ Tarsius app created successfully with plain JavaScript!');
-  console.log('App target element content length:', targetElement.innerHTML.length);
-
-  // Show success indicator
-  const successDiv = document.createElement('div');
-  successDiv.style.cssText = 'position: fixed; top: 50px; left: 0; background: #FF9800; color: white; padding: 5px; font-family: Arial; z-index: 1000;';
-  successDiv.textContent = 'Tarsius App Loaded ✓';
-  document.body.appendChild(successDiv);
-
-} catch (error) {
-  console.error('❌ Error creating Tarsius app:', error);
-
-  // Show error indicator
-  const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = 'position: fixed; top: 50px; left: 0; background: #f44336; color: white; padding: 10px; font-family: Arial; z-index: 1000; max-width: 500px;';
-  errorDiv.innerHTML = `<strong>JavaScript Error:</strong><br><pre style="margin: 5px 0; font-size: 12px;">${error.message}</pre>`;
-  document.body.appendChild(errorDiv);
+  console.log('Tarsius app loaded successfully!');
 }

@@ -4,19 +4,47 @@ Tarsius is a cross-platform desktop application for note-taking and LaTeX docume
 
 ## Features
 
-- **Scratches**: Create and edit notes with rich text support.
-- **Projects**: Organize notes into hierarchical outlines and compile to LaTeX.
-- **LaTeX Integration**: Automatic compilation using Tectonic for portable PDF generation.
-- **Cross-Platform**: Runs on Windows, macOS, and Linux.
-- **Live Preview**: Real-time PDF updates as you edit.
+- **Scratches**: Create and edit notes with a modern, card-based interface
+- **Projects**: Organize notes into hierarchical outlines and compile to LaTeX
+- **Modern UI**: Dark theme with glassmorphism, smooth animations, and professional typography
+- **LaTeX Integration**: Automatic compilation using Tectonic for portable PDF generation *(coming in Phase 7)*
+- **Cross-Platform**: Runs on Windows, macOS, and Linux
+- **Live Preview**: Real-time PDF updates as you edit *(coming in Phase 8)*
+
+## Current Status
+
+The project is currently in **Phase 6** of development:
+
+- ✅ **Phase 0-6**: Core functionality complete (Scratches, Projects, UI Framework)
+- 🚧 **Phase 7**: LaTeX Pipeline (in progress)
+- 🚧 **Phase 8**: Live PDF Preview (planned)
+- 🚧 **Phase 9**: Global Search & Indexing (planned)
+- 🚧 **Phase 10**: Optimization & Stability (planned)
+
+See [TODO.md](TODO.md) for detailed development roadmap.
 
 ## Architecture
 
-- **Backend**: Rust with three crates:
-  - `tarsius-core`: Domain logic for Scratches, Projects, and LaTeX processing.
-  - `tarsius-storage`: Filesystem-based persistence.
-  - `tarsius-tauri`: Tauri application with web frontend.
-- **Frontend**: Web UI built with modern frameworks (Svelte/React/Vue) using Monaco/CodeMirror for editing.
+### Backend (Rust)
+
+- **`tarsius-core`**: Domain logic for Scratches, Projects, and LaTeX processing
+- **`tarsius-storage`**: Filesystem-based persistence layer
+- **`tarsius-tauri`**: Tauri application with web frontend integration
+
+### Frontend (Svelte)
+
+- Modern web UI with dark theme and glassmorphism effects
+- Monaco Editor integration for rich text editing
+- Drag-and-drop functionality for organizing content
+- Responsive, card-based layouts
+
+### Key Design Principles
+
+- Clean separation of concerns between layers
+- Comprehensive data models with serde serialization
+- DTO pattern for frontend-backend communication
+- Atomic file writes for data integrity
+- Modular, testable architecture
 
 ## Installation
 
@@ -37,12 +65,18 @@ cargo tauri build
 ### Development
 
 ```bash
+# Run in development mode
 cargo tauri dev
+
+# Build frontend only
+cd tarsius-tauri/frontend
+npm install
+npm run build
 ```
 
 ## Contributing
 
-Contributions are welcome! Please see the TODO.md for current development phases.
+Contributions are welcome! Please see [TODO.md](TODO.md) for current development phases and [Requirements-Technical.md](Requirements-Technical.md) for technical specifications.
 
 ## License
 

@@ -15,3 +15,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.swp
+
+# Frontend build artifacts
+tarsius-tauri/frontend/public/build/
